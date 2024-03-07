@@ -2,21 +2,20 @@
 """
 Pascal's Triangle
 """
-from math import factorial
 
 
 def pascal_triangle(n):
     """
-        Returns the Pascal's triangle of n
-        Args:
-            n (int): number of rows
+    Returns the Pascal's triangle of n
+    Args:
+        n (int): number of rows
     """
     if n <= 0:
         return []
-    triangle = []
-    for i in range(n):
-        row = []
-        for j in range(i + 1):
-            row.append(factorial(i) // (factorial(j) * factorial(i - j)))
-        triangle.append(row)
+
+    triangle = [[1] * (i + 1) for i in range(n)]
+    for i in range(2, n):
+        for j in range(1, i):
+            triangle[i][j] = triangle[i-1][j-1] + triangle[i-1][j]
+
     return triangle
