@@ -22,4 +22,3 @@ def pascal_triangle(n):
                 triangle[i][j] = triangle[i - 1][j - 1] + triangle[i - 1][j]
 
     return triangle
-
