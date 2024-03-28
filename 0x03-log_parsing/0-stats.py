@@ -42,4 +42,3 @@ finally:
     print(f"File size: {total_size}")
     for status in sorted(status_code_count):
         print(f"{status}: {status_code_count[status]}")
-        
