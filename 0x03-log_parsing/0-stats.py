@@ -6,55 +6,40 @@ Prints total file size and possible status codes in format:
     File size: <total size>
     <status code>: <number>
 """
+import sys
+import re
 
-import fileinput
-
-
-def print_logs(file_size: int, status_codes: dict):
-    """Print logs
-    Args: file_size (int): Total file size
-            status_codes (dict): Dictionary of status codes
-            Returns: None
-    """
-    print("File size: {}".format(file_size))
-    for key, value in sorted(status_codes.items()):
-        if (value > 0):
-            print("{}: {}".format(key, value))
+lines_read = 0
+status_code_count = {}
+total_size = 0
 
 
-def parse_log():
-    """Parse logs about status codes and file size from stdin
-    Args: None
-                Returns: None
-    """
-    file_size = 0
-    status_codes = {
-        "200": 0,
-        "301": 0,
-        "400": 0,
-        "401": 0,
-        "403": 0,
-        "404": 0,
-        "405": 0,
-        "500": 0}
-    current_line = 0
+try:
+    for line in sys.stdin:
+        lines_read += 1
+        r = re.search(
+            '^\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}\\s-\\s\\[[\\d -:.]*\
+\\]\\s"GET\\s\\/projects\\/260\\sHTTP\\/1.1"\\s\\d{1,3}\\s\\d{1,4}$',
+            line)
+        if r:
+            status = re.search("(?<=1.1\" )\\d{1,3}", line)
+            file_size = re.search("\\d{1,4}$", line)
+            if status_code_count.get(status.group()):
+                status_code_count[status.group()] = status_code_count.get(
+                    status.group()) + 1
+            else:
+                status_code_count[status.group()] = 1
+            total_size = total_size + int(file_size.group())
+        else:
+            continue
 
-    try:
-        for line in fileinput.input():
-            data = line.split()
-            if (len(data) < 2):
-                continue
-            file_size += int(data[-1])
-            status = data[-2]
-            if (status in status_codes):
-                status_codes[status] += 1
-            current_line += 1
-            if (current_line % 10 == 0):
-                print_logs(file_size, status_codes)
-    except KeyboardInterrupt:
-        pass
-    print_logs(file_size, status_codes)
+        if lines_read % 10 == 0:
+            print(f"File size: {total_size}")
+            for status in sorted(status_code_count):
+                print(f"{status}: {status_code_count[status]}")
 
-
-if __name__ == "__main__":
-    parse_log()
+finally:
+    print(f"File size: {total_size}")
+    for status in sorted(status_code_count):
+        print(f"{status}: {status_code_count[status]}")
+        
