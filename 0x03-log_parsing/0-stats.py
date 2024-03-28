@@ -1,50 +1,60 @@
 #!/usr/bin/python3
 """
-This script reads from stdin line by line and computes metrics.
-The input format is specified and after every 10 lines or a keyboard interruption (CTRL + C),
-it prints statistics from the beginning.
+Reads stdin line by line and computes metrics:
+    - Input format: * <status code> <file size>
+Prints total file size and possible status codes in format:
+    File size: <total size>
+    <status code>: <number>
 """
 
-import sys
-import signal
+import fileinput
 
-def signal_handler(sig, frame):
+
+def print_logs(file_size: int, status_codes: dict):
+    """Print logs
+    Args: file_size (int): Total file size
+            status_codes (dict): Dictionary of status codes
+            Returns: None
     """
-    Handles the signal interruption (CTRL + C), prints the statistics and exits.
+    print("File size: {}".format(file_size))
+    for key, value in sorted(status_codes.items()):
+        if (value > 0):
+            print("{}: {}".format(key, value))
+
+
+def parse_log():
+    """Parse logs about status codes and file size from stdin
+    Args: None
+                Returns: None
     """
-    print_stats()
-    sys.exit(0)
+    file_size = 0
+    status_codes = {
+        "200": 0,
+        "301": 0,
+        "400": 0,
+        "401": 0,
+        "403": 0,
+        "404": 0,
+        "405": 0,
+        "500": 0}
+    current_line = 0
 
-def print_stats():
-    """
-    Prints the total file size and the number of lines by status code.
-    """
-    print("File size: {}".format(total_size))
-    for code in sorted(status_codes.keys()):
-        if status_codes[code] > 0:
-            print("{}: {}".format(code, status_codes[code]))
-
-# Initialize status codes dictionary, total size and line count
-status_codes = {"200": 0, "301": 0, "400": 0, "401": 0, "403": 0, "404": 0, "405": 0, "500": 0}
-total_size = 0
-line_count = 0
-
-# Set up the signal handler for the SIGINT signal (CTRL + C)
-signal.signal(signal.SIGINT, signal_handler)
-
-try:
-    for line in sys.stdin:
-        try:
+    try:
+        for line in fileinput.input():
             data = line.split()
-            total_size += int(data[-1])
-            if data[-2] in status_codes:
-                status_codes[data[-2]] += 1
-        except:
-            pass
-        if line_count == 9:
-            print_stats()
-            line_count = -1
-        line_count += 1
-except KeyboardInterrupt:
-    print_stats()
-    raise
+            if (len(data) < 2):
+                continue
+            file_size += int(data[-1])
+            status = data[-2]
+            if (status in status_codes):
+                status_codes[status] += 1
+            current_line += 1
+            if (current_line % 10 == 0):
+                print_logs(file_size, status_codes)
+    except KeyboardInterrupt:
+        pass
+    print_logs(file_size, status_codes)
+
+
+if __name__ == "__main__":
+    parse_log()
