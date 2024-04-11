@@ -1,48 +1,69 @@
 #!/usr/bin/python3
 """
-A program that solves the N queens problem
+Solving the Nqueens problem
 """
 
 import sys
 
 
-if len(sys.argv) > 2 or len(sys.argv) < 2:
-    print("Usage: nqueens N")
-    exit(1)
-
-if not sys.argv[1].isdigit():
-    print("N must be a number")
-    exit(1)
-
-if int(sys.argv[1]) < 4:
-    print("N must be at least 4")
-    exit(1)
-
-n = int(sys.argv[1])
-
-
-def queens(n, i=0, a=[], b=[], c=[]):
+def canMove(final, row, column):
     """
-    find possible positions
+    Checks if the nquen can moove
     """
-    if i < n:
-        for j in range(n):
-            if j not in a and i + j not in b and i - j not in c:
-                yield from queens(n, i + 1, a + [j], b + [i + j], c + [i - j])
-    else:
-        yield a
+    rows = []
+    columns = []
+    top_left = []
+    top_right = []
+
+    for nums in final:
+        rows.append(nums[0])
+        columns.append(nums[1])
+        top_left.append(nums[1] - nums[0])
+        top_right.append(nums[0] + nums[1])
+
+    if row in rows or column in columns:
+        return False
+    if column - row in top_left or row + column in top_right:
+        return False
+
+    return True
 
 
-def solve(n):
-    """ solve """
-    k = []
-    i = 0
-    for solution in queens(n, 0):
-        for s in solution:
-            k.append([i, s])
-            i += 1
-        print(k)
-        k = []
-        i = 0
+def nqueens(final, column, checked_queens=[]):
+    """
+    The main code
+    """
+    for item in range(n):
+        if canMove(final, item, column):
+            final.append([item, column])
+            if column == n - 1:
+                checked_queens.append(final.copy())
+                del final[-1]
+            else:
+                nqueens(final, column + 1)
 
-solve(n)
+    if len(final) > 0:
+        del final[-1]
+    return checked_queens
+
+if __name__ == '__main__':
+
+    if len(sys.argv) != 2:
+        print("Usage: nqueens N")
+        sys.exit(1)
+
+    try:
+        n = int(sys.argv[1])
+    except:
+        print("N must be a number")
+        sys.exit(1)
+
+    if n < 4:
+        print("N must be at least 4")
+        sys.exit(1)
+
+    final = []
+    final = nqueens(final, 0)
+
+    for nums in final:
+        print(nums)
