@@ -11,11 +11,9 @@ def island_perimeter(grid):
     perimeter = 0
     if grid is None:
         return 0
-    if len(grid) == 0:
+
+    if type(grid) != list:
         return 0
-    for row in grid:
-        if len(row) == 0:
-            return 0
 
     for i in range(len(grid)):
         for e in range(len(grid[i])):
