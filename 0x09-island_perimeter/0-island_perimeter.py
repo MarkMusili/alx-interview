@@ -9,6 +9,14 @@ def island_perimeter(grid):
     Calculate the perimeter of a 2 matrix
     """
     perimeter = 0
+    if grid is None:
+        return 0
+    if len(grid) == 0:
+        return 0
+    for row in grid:
+        if len(row) == 0:
+            return 0
+
     for i in range(len(grid)):
         for e in range(len(grid[i])):
             if grid[i][e] == 1:
