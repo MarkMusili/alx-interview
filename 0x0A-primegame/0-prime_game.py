@@ -6,7 +6,8 @@ Prime game
 
 def get_primes(n):
     """
-    Generate a list of booleans where is_prime[i] is True if i is a prime number
+    Generate a list of booleans
+    where is_prime[i] is True if i is a prime number
     """
     is_prime = [False, False] + [True for _ in range(2, n + 1)]
     p = 2
@@ -16,6 +17,7 @@ def get_primes(n):
                 is_prime[i] = False
         p += 1
     return is_prime
+
 
 def isWinner(x, nums):
     """
